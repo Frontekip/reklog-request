@@ -1,0 +1,23 @@
+{
+  "name": "reklog",
+  "version": "0.0.10",
+  "description": "Request logging package for tracking API response times and performance",
+  "main": "src/index.js",
+  "keywords": [
+    "request",
+    "logger",
+    "monitoring",
+    "api",
+    "performance",
+    "response-time"
+  ],
+  "author": "Yaşar İçli <yasar.icli@tatilsepeti.com>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yasaricli/reklog"
+  }
+}
