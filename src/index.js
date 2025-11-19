@@ -9,9 +9,40 @@ class RekLog {
     this.environment = options.environment || 'development';
     this.host = options.host || null;
 
+    // Default sensitive fields to mask
+    const defaultMaskFields = ['password', 'token', 'secret', 'authorization', 'api_key', 'apikey', 'access_token', 'refresh_token', 'credit_card', 'cvv', 'ssn'];
+    this.maskFields = options.maskFields
+      ? [...new Set([...defaultMaskFields, ...options.maskFields])].map(f => f.toLowerCase())
+      : defaultMaskFields;
+
     if (!apiKey) {
       throw new Error('RekLog: API key is required');
     }
+  }
+
+  /**
+   * Mask sensitive data in objects recursively
+   * @param {any} data - Data to mask
+   * @returns {any} Masked data
+   */
+  maskSensitiveData(data) {
+    if (!data || typeof data !== 'object') return data;
+
+    if (Array.isArray(data)) {
+      return data.map(item => this.maskSensitiveData(item));
+    }
+
+    const masked = { ...data };
+
+    for (const key in masked) {
+      if (this.maskFields.includes(key.toLowerCase())) {
+        masked[key] = '********';
+      } else if (typeof masked[key] === 'object' && masked[key] !== null) {
+        masked[key] = this.maskSensitiveData(masked[key]);
+      }
+    }
+
+    return masked;
   }
 
   /**
@@ -60,10 +91,10 @@ class RekLog {
       statusCode: options.statusCode || 200,
       environment: options.environment || this.environment,
       host: this.host,
-      body: options.body || null,
-      params: options.params || null,
-      requestHeaders: options.requestHeaders || null,
-      response: options.response || null,
+      body: this.maskSensitiveData(options.body) || null,
+      params: this.maskSensitiveData(options.params) || null,
+      requestHeaders: this.maskSensitiveData(options.requestHeaders) || null,
+      response: this.maskSensitiveData(options.response) || null,
       metadata: options.metadata || {}
     };
 
@@ -151,18 +182,18 @@ class RekLog {
           statusCode: res.statusCode,
           environment: self.environment,
           host: self.host || req.get('host') || null,
-          // Request body (for POST, PUT, PATCH)
-          body: req.body || null,
-          // Query parameters (for GET)
-          params: req.query && Object.keys(req.query).length > 0 ? req.query : null,
-          // Request headers (selected headers)
-          requestHeaders: {
+          // Request body (for POST, PUT, PATCH) - masked
+          body: self.maskSensitiveData(req.body) || null,
+          // Query parameters (for GET) - masked
+          params: req.query && Object.keys(req.query).length > 0 ? self.maskSensitiveData(req.query) : null,
+          // Request headers (selected headers) - masked
+          requestHeaders: self.maskSensitiveData({
             'content-type': req.get('content-type'),
             'user-agent': req.get('user-agent'),
             'accept': req.get('accept')
-          },
-          // Response (optional, can be removed if too large)
-          response: response,
+          }),
+          // Response (optional, can be removed if too large) - masked
+          response: self.maskSensitiveData(response),
           metadata: {
             routeParams: req.params
           }
