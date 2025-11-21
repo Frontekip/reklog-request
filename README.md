@@ -2,7 +2,7 @@
   <img src="https://reklog.com/favicon.png" alt="RekLog" width="80" height="80">
 </p>
 
-<h1 align="center">RekLog</h1>
+<h1 align="center">RekLog Request</h1>
 
 <p align="center">
   Request logging and performance monitoring for Node.js & Browser applications
@@ -11,7 +11,13 @@
 <p align="center">
 
 ```bash
-yarn add reklog
+npm install reklog-request
+```
+
+or
+
+```bash
+yarn add reklog-request
 ```
 
 </p>
@@ -31,7 +37,7 @@ yarn add reklog
 ### Initialize
 
 ```javascript
-const reklog = require('reklog');
+const reklog = require('reklog-request');
 
 const logger = reklog.init('rkl_your_api_key', {
   environment: 'production',
@@ -75,7 +81,7 @@ Automatically log all requests:
 
 ```javascript
 const express = require('express');
-const reklog = require('reklog');
+const reklog = require('reklog-request');
 
 const app = express();
 app.use(express.json());
